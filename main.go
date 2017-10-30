@@ -1,6 +1,7 @@
 package main
 
 import (
+	"database/sql"
 	// "time"
 	// "flag"
 	"fmt"
@@ -9,6 +10,7 @@ import (
 	"log"
 	"io/ioutil"
 	"github.com/gorilla/mux"
+	_ "github.com/lib/pq"
 
 )
 
@@ -114,7 +116,46 @@ func loginHandler (w http.ResponseWriter, r *http.Request) {
 
 }
 
+const (
+	DB_USER 		= "postgres"
+	DB_PASSWORD 	= "secret"
+	DB_NAME 		= "godemy_dev"
+)
+
+type User struct {
+	userid int64
+	name string
+}
+
 func main() {
+
+	//////////////////////////////////////////////////////////////
+	// Database connection
+	//////////////////////////////////////////////////////////////
+
+	
+	connStr := "user=postgres dbname=godemy_dev sslmode=disable"
+	db, err := sql.Open("postgres", connStr)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	defer db.Close()
+	rows, err := db.Query("SELECT * FROM public.users")
+	if err != nil {
+		log.Println(err.Error())
+	}
+	
+	for rows.Next() {
+		var userid int
+		var name string
+		err = rows.Scan(&userid, &name)
+		if err != nil{
+			log.Println(err.Error())
+		}
+		log.Println("userid | name")
+		log.Printf("%6v | %6v\n", userid, name)
+	}
 
 	//////////////////////////////////////////////////////////////
 	// Original method:
@@ -128,33 +169,5 @@ func main() {
 	log.Println("Listening on port 8080")
 	log.Fatal(http.ListenAndServe(":8080", nil))
 
-	//////////////////////////////////////////////////////////////
-	// New method:
-	//////////////////////////////////////////////////////////////
 
-	// var dir string
-
-	// flag.StringVar(&dir, "dir", ".", "the directory to serve files from")
-	// flag.Parse()
-
-	// r := mux.NewRouter()
-
-	// r.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir(dir))))
-	// r.HandleFunc("/", indexHandler)
-
-	// srv := &http.Server{
-	// 	Handler: 	r,
-	// 	Addr:		"127.0.0.1:8080",
-	// 	WriteTimeout: 15* time.Second,
-	// 	ReadTimeout: 15* time.Second, 
-	// }
-
-	// log.Fatal(srv.ListenAndServe())
-
-
-	// http.HandleFunc("/", sendHello)
-	// err := http.ListenAndServe(":8080", nil) // Set listen port
-	// if err != nil {
-	// 	log.Fatal("ListenAndServe: ", err)
-	// }
 }
