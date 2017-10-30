@@ -11,8 +11,11 @@ import (
 	"io/ioutil"
 	"github.com/gorilla/mux"
 	_ "github.com/lib/pq"
+	_ "strconv"
 
 )
+
+
 
 func sendHello(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()       // parse args, you have to call this by yourself
@@ -122,9 +125,58 @@ const (
 	DB_NAME 		= "godemy_dev"
 )
 
+type Env struct {
+	db DBContext
+}
+
+type DB struct {
+	*sql.DB
+}
+
+func NewDB(dataSourceName string) (*DB, error) {
+	db, err := sql.Open("postgres", dataSourceName)
+	
+    if err != nil {
+        return nil, err
+    }
+    if err = db.Ping(); err != nil {
+        return nil, err
+    }
+    return &DB{db}, nil
+}
+
 type User struct {
 	userid int64
 	name string
+}
+
+type DBContext interface {
+	Users() ([]*User, error)
+}
+
+func (db *DB) Users() ([]*User, error) {
+	log.Println("USERS FUNC")
+	rows, err := db.Query("SELECT * FROM users")
+    if err != nil {
+		log.Println(err.Error())
+        return nil, err
+	}
+	log.Println("USERS B CLOSE")
+	defer rows.Close()
+	log.Println("USERS AFTER CLOSE")
+	
+	users := make([]*User, 0)
+	log.Println("ROWS")
+	for rows.Next() {
+		var user User
+		err = rows.Scan(&user.userid, &user.name)
+		if err != nil{
+			log.Println(err.Error())
+		}
+		users = append(users, &user)
+	}
+
+	return users, nil
 }
 
 func main() {
@@ -133,29 +185,20 @@ func main() {
 	// Database connection
 	//////////////////////////////////////////////////////////////
 
-	
-	connStr := "user=postgres dbname=godemy_dev sslmode=disable"
-	db, err := sql.Open("postgres", connStr)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	defer db.Close()
-	rows, err := db.Query("SELECT * FROM public.users")
+	db, err := NewDB("user=postgres password=secret dbname=godemy_dev sslmode=disable")
 	if err != nil {
 		log.Println(err.Error())
 	}
+	env := &Env{db}
+	log.Println("Get Users")
+	users, err := env.db.Users()
 	
-	for rows.Next() {
-		var userid int
-		var name string
-		err = rows.Scan(&userid, &name)
-		if err != nil{
-			log.Println(err.Error())
-		}
-		log.Println("userid | name")
-		log.Printf("%6v | %6v\n", userid, name)
+	for _, usr := range users {	
+		log.Printf("%d | %s \n", usr.userid, usr.name)
 	}
+	
+
+	
 
 	//////////////////////////////////////////////////////////////
 	// Original method:
