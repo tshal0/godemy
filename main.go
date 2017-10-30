@@ -11,7 +11,8 @@ import (
 	"github.com/gorilla/mux"
 	_ "github.com/lib/pq"
 	_ "strconv"
-	"app/db/db"
+	"app/model"
+	
 
 
 )
@@ -134,16 +135,17 @@ func main() {
 	// Database connection
 	//////////////////////////////////////////////////////////////
 
-	db, err := NewDB("user=postgres password=secret dbname=godemy_dev sslmode=disable")
+	context, err := db.NewDB("user=postgres password=secret dbname=godemy_dev sslmode=disable")
 	if err != nil {
 		log.Println(err.Error())
 	}
-	env := &Env{db}
+	
+	env := &db.Env{Context: context}
 	log.Println("Get Users")
-	users, err := env.db.Users()
+	users, err := env.Context.Users()
 	
 	for _, usr := range users {	
-		log.Printf("%d | %s \n", usr.userid, usr.name)
+		log.Printf("%d | %s \n", usr.Userid, usr.Name)
 	}
 	
 

@@ -9,7 +9,7 @@ import (
 )
 
 type Env struct {
-	db DBContext
+	Context DBContext
 }
 
 type DB struct {
@@ -29,8 +29,8 @@ func NewDB(dataSourceName string) (*DB, error) {
 }
 
 type User struct {
-	userid int64
-	name string
+	Userid int64
+	Name string
 }
 
 type DBContext interface {
@@ -52,7 +52,7 @@ func (db *DB) Users() ([]*User, error) {
 	log.Println("ROWS")
 	for rows.Next() {
 		var user User
-		err = rows.Scan(&user.userid, &user.name)
+		err = rows.Scan(&user.Userid, &user.Name)
 		if err != nil{
 			log.Println(err.Error())
 		}
