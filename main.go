@@ -11,7 +11,8 @@ import (
 	"github.com/gorilla/mux"
 	_ "github.com/lib/pq"
 	_ "strconv"
-	"app/model/db.go"
+	"app/model/db"
+
 
 )
 
