@@ -65,17 +65,35 @@ func indexHandler (w http.ResponseWriter, r *http.Request) {
 
 func staticHandler (w http.ResponseWriter, r *http.Request) {
 
-	path := r.URL.Path[1:]
-	log.Println("path: " + path)
+	vars := mux.Vars(r)
+
+	
+
+	file := vars["file"]
+	
+	var contentType string 
+	var path string
+	if strings.HasSuffix(file, ".js") {
+		log.Println("JS")
+		contentType = "text/javascript"
+		path = "static/js/" + file
+	} else if strings.HasSuffix(file, ".html") {
+		log.Println(file)
+		contentType = "text/html"
+		path = "static/" + file
+	} else {
+		contentType = "text/plain"
+		log.Println("PLAIN")
+		path = r.URL.Path[1:]
+	}
 
 	data, err := ioutil.ReadFile(path)
 
 	if err == nil {
-		var contentType string
-
-		contentType = "text/html"
-
-		w.Header().Add("Content Type", contentType)
+		log.Println("Content type: " + contentType + " | " + 
+			"File: " + path)
+		w.Header().Add("Content-Type", contentType)
+		w.WriteHeader(http.StatusOK)
 		w.Write(data)
 	}
 
