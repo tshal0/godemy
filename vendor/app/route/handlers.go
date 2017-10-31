@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	_ "encoding/json"
 	// "time"
 	// "flag"
 	"fmt"
@@ -126,10 +127,24 @@ func Authenticate (w http.ResponseWriter, r *http.Request) {
 	log.Printf("UserName: %s | Password: %s\n", name, pass)
 	w.WriteHeader(http.StatusAccepted)
 }
-
+type test_struct struct {
+	Username string
+	Password string
+	
+}
 func Register (w http.ResponseWriter, r *http.Request) {
 	name := r.FormValue("username")
 	pass := r.FormValue("password")
+
+	r.ParseForm()
+	log.Println(r.Form)
+
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		log.Println("Error: " + err.Error())
+	}
+
+	log.Println(string(body))
 
 	log.Printf("UserName: %s | Password: %s\n", name, pass)
 	w.WriteHeader(http.StatusAccepted)

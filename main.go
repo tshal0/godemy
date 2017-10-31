@@ -45,7 +45,7 @@ func main() {
 	r := mux.NewRouter()
 	r.HandleFunc("/", handlers.IndexHandler)
 	r.HandleFunc("/login", handlers.Authenticate).Methods("GET")
-	r.HandleFunc("/register", handlers.Register).Methods("GET")
+	r.HandleFunc("/register", handlers.Register).Methods("POST")
 	r.HandleFunc("/static/{file}", handlers.StaticHandler)
 	http.Handle("/", r)
 	log.Println("Listening on port 8080")
