@@ -35,7 +35,7 @@ func main() {
 	users, err := env.Context.Users()
 	
 	for _, usr := range users {	
-		log.Printf("%d | %s \n", usr.Userid, usr.Name)
+		log.Printf("%d | %s | %s \n", usr.Userid, usr.Name, usr.Passwordhash)
 	}
 	
 	//////////////////////////////////////////////////////////////
@@ -44,7 +44,7 @@ func main() {
 
 	r := mux.NewRouter()
 	r.HandleFunc("/", handlers.IndexHandler)
-	r.HandleFunc("/login", handlers.LoginHandler)
+	r.HandleFunc("/login", handlers.Authenticate).Methods("GET")
 	r.HandleFunc("/static/{file}", handlers.StaticHandler)
 	http.Handle("/", r)
 	log.Println("Listening on port 8080")

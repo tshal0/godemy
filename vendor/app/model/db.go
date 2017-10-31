@@ -31,6 +31,7 @@ func NewDB(dataSourceName string) (*DB, error) {
 type User struct {
 	Userid int64
 	Name string
+	Passwordhash string
 }
 
 type DBContext interface {
@@ -52,7 +53,7 @@ func (db *DB) Users() ([]*User, error) {
 	log.Println("ROWS")
 	for rows.Next() {
 		var user User
-		err = rows.Scan(&user.Userid, &user.Name)
+		err = rows.Scan(&user.Userid, &user.Name, &user.Passwordhash)
 		if err != nil{
 			log.Println(err.Error())
 		}

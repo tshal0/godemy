@@ -118,3 +118,11 @@ func LoginHandler (w http.ResponseWriter, r *http.Request) {
 	}
 
 }
+
+func Authenticate (w http.ResponseWriter, r *http.Request) {
+	name := r.FormValue("username")
+	pass := r.FormValue("password")
+
+	log.Printf("UserName: %s | Password: %s\n", name, pass)
+	w.WriteHeader(http.StatusAccepted)
+}
